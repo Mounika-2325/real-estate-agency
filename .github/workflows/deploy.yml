@@ -18,6 +18,9 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    defaults:
+      run:
+        working-directory: real-estate-agency/frontend
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -34,14 +37,10 @@ jobs:
           cache-dependency-path: real-estate-agency/frontend/package-lock.json
 
       - name: Install Frontend Dependencies
-        run: |
-          cd real-estate-agency/frontend
-          npm ci
+        run: npm ci
 
       - name: Build Frontend Application
-        run: |
-          cd real-estate-agency/frontend
-          npm run build
+        run: npm run build
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
