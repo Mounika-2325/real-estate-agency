@@ -17,7 +17,11 @@ export const connectDB = async () => {
       console.log(`[DB] Connected to MongoDB: ${conn.connection.host}`);
       return conn;
     } catch (primaryErr) {
-      console.warn(`[DB] Could not connect to primary MongoDB at ${mongoUri}. Spawning in-memory MongoDB server for development...`);
+      if (process.env.NODE_ENV === 'production') {
+        throw primaryErr;
+      }
+
+      console.warn('[DB] Could not connect to primary MongoDB. Spawning in-memory MongoDB server for development...');
       
       mongod = await MongoMemoryServer.create();
       const memoryUri = mongod.getUri();

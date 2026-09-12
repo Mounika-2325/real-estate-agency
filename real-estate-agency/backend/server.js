@@ -14,10 +14,25 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0';
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173',
+  'https://mounika-2325.github.io',
+  process.env.FRONTEND_ORIGIN,
+].filter(Boolean);
+
 const corsOptions = {
-  origin: '*', // Allow all during development
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key'],
 };
@@ -38,6 +53,13 @@ app.get('/api', (req, res) => {
       inquiries: '/api/inquiries',
       seed: 'POST /api/seed (Admin Protected)',
     },
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'ok',
   });
 });
 
@@ -80,7 +102,7 @@ const startServer = async () => {
     console.warn('[SERVER] Could not check initial seed status:', err.message);
   }
 
-  app.listen(PORT, () => {
+  app.listen(PORT, HOST, () => {
     console.log(`===================================================`);
     console.log(` Real Estate API Server running on port ${PORT}`);
     console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
